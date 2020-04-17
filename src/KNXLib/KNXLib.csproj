@@ -38,6 +38,8 @@
     <Reference Include="System.Core" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="DPT\DataPoint2ByteFloatTemperatureCelsius.cs" />
+    <Compile Include="DPT\DataPoint2ByteFloatTemperatureFahrenheit.cs" />
     <Compile Include="DPT\DataPoint8BitNoSignNonScaledValue1UCount.cs" />
     <Compile Include="DPT\DataPoint8BitNoSignScaledPercentU8.cs" />
     <Compile Include="DPT\DataPoint8BitNoSignScaledAngle.cs" />
@@ -47,7 +49,6 @@
     <Compile Include="Log\Logger.cs" />
     <Compile Include="Properties\AssemblyConfiguration.cs" />
     <Compile Include="DPT\DataPoint.cs" />
-    <Compile Include="DPT\DataPoint2ByteFloatTemperature.cs" />
     <Compile Include="DPT\DataPointTranslator.cs" />
     <Compile Include="KnxConnectionConfiguration.cs" />
     <Compile Include="KnxLockManager.cs" />

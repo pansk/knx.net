@@ -4,7 +4,7 @@ using KNXLib.Log;
 
 namespace KNXLib.DPT
 {
-    internal sealed class DataPoint2ByteFloatTemperature : DataPoint
+    internal sealed class DataPoint2ByteFloatTemperatureCelsius : DataPoint
     {
         public override string[] Ids
         {
