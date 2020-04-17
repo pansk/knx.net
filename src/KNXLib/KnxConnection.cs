@@ -364,5 +364,16 @@ namespace KNXLib
         {
             return DataPointTranslator.Instance.ToDataPoint(type, value);
         }
+
+
+        
+
+
+        /// <summary>
+        ///     Returns the physical unit of a datapoint as string
+        /// </summary>
+        /// <param name="type"></param>
+        /// <returns></returns>
+        public static string UnitFromDataPoint(string type) { return DataPointTranslator.Instance.UnitFromDataPoint(type); }
     }
 }
