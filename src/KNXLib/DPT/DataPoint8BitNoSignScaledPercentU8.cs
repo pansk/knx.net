@@ -66,5 +66,20 @@ namespace KNXLib.DPT
 
             return dataPoint;
         }
+
+
+
+
+
+        public override string Unit(string type)
+        {
+            switch (type)
+            {
+                case "5.004":
+                    return "%";
+            }
+            return "";
+
+        }
     }
 }

@@ -66,5 +66,19 @@ namespace KNXLib.DPT
 
             return dataPoint;
         }
+
+
+
+
+
+        public override string Unit(string type)
+        {
+            switch (type)
+            {
+                case "5.010":
+                    return "counter pulse";
+            }
+            return "";
+        }
     }
 }

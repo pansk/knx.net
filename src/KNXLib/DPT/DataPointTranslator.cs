@@ -92,5 +92,22 @@ namespace KNXLib.DPT
 
             return null;
         }
+
+
+
+
+
+        public string UnitFromDataPoint(string type)
+        {
+            try
+            {
+                DataPoint dpt;
+                if (this._dataPoints.TryGetValue(type, out dpt))
+                    return dpt.Unit(type);
+            }
+            catch {}
+
+            return null;
+        }
     }
 }

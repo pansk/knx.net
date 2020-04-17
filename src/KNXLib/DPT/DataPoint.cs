@@ -11,5 +11,7 @@
         public abstract byte[] ToDataPoint(string value);
 
         public abstract byte[] ToDataPoint(object value);
+
+        public abstract string Unit(string type);
     }
 }

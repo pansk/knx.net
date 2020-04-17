@@ -125,5 +125,20 @@ namespace KNXLib.DPT
 
             return dataPoint;
         }
+
+
+
+
+
+        public override string Unit(string type)
+        {
+            switch (type)
+            {
+                case "9.001":
+                    return "°C";
+            }
+
+            return "";
+        }
     }
 }
