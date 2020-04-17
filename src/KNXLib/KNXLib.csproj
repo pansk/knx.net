@@ -38,6 +38,7 @@
     <Reference Include="System.Core" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="DPT\DataPoint1Bit.cs" />
     <Compile Include="DPT\DataPoint2ByteFloatTemperatureCelsius.cs" />
     <Compile Include="DPT\DataPoint2ByteFloatTemperatureFahrenheit.cs" />
     <Compile Include="DPT\DataPoint8BitNoSignNonScaledValue1UCount.cs" />
