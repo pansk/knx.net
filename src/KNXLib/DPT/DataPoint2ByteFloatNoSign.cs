@@ -38,7 +38,6 @@ namespace KNXLib.DPT
 
             int val = 0;
             uint m = (uint) ((data[0] & 0x07) << 8) | (data[1]);
-            bool signed = ((data[0] & 0x80) >> 7) == 0;
 
 
             val = (int) m;
@@ -98,9 +97,7 @@ namespace KNXLib.DPT
                 e++;
             }
 
-            int mantissa;
-
-            mantissa = (int) v;
+            var mantissa = (int) v;
 
 
             dataPoint[1] = ((byte) (dataPoint[1] | ((e & 0x0F) << 3)));
