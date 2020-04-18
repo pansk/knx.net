@@ -39,6 +39,9 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="DPT\DataPoint1Bit.cs" />
+    <Compile Include="DPT\DataPoint2ByteFloat.cs" />
+    <Compile Include="DPT\DataPoint2ByteFloatNoSign.cs" />
+    <Compile Include="DPT\DataPoint2ByteFloatRainAmount.cs" />
     <Compile Include="DPT\DataPoint2ByteFloatTemperatureCelsius.cs" />
     <Compile Include="DPT\DataPoint2ByteFloatTemperatureFahrenheit.cs" />
     <Compile Include="DPT\DataPoint8BitNoSignNonScaledValue1UCount.cs" />
