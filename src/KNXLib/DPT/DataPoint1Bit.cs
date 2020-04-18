@@ -37,6 +37,7 @@ namespace KNXLib.DPT
                     "1.021",
                     "1.022",
                     "1.023",
+                    "1.100"
                 };
             }
         }
@@ -98,6 +99,57 @@ namespace KNXLib.DPT
 
         public override string Unit(string type)
         {
+            switch (type)
+            {
+
+                case "1.001":
+                    return "";
+                case "1.002":
+                    return "";
+                case "1.003":
+                    return "";
+                case "1.004":
+                    return "";
+                case "1.005":
+                    return "";
+                case "1.006":
+                    return "";
+                case "1.007":
+                    return "";
+                case "1.008":
+                    return "";
+                case "1.009":
+                    return "";
+                case "1.010":
+                    return "";
+                case "1.011":
+                    return "";
+                case "1.012":
+                    return "";
+                case "1.013":
+                    return "";
+                case "1.014":
+                    return "";
+                case "1.015":
+                    return "";
+                case "1.016":
+                    return "";
+                case "1.017":
+                    return "";
+                case "1.018":
+                    return "";
+                case "1.019":
+                    return "";
+                case "1.021":
+                    return "";
+                case "1.022":
+                    return "";
+                case "1.023":
+                    return "";
+                case "1.100":
+                    return "";
+            }
+
             return "";
         }
     }
