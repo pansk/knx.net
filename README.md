@@ -97,13 +97,15 @@ static void Status(string address, string state)
   if (address == "1/1/16")
   {
     decimal temp = (decimal)connection.FromDataPoint("9.001", state);
-    Console.WriteLine("New Event: device " + address + " has status " + temp);
+    Console.WriteLine("New Event: device " + address + " has status " + temp + connection.UnitFromDataPoint("9.001"));
+    // output: "New Event: device 1/1/16 has status 23°C);"
     return;
   }
   if (address == "1/1/17")
   {
     int perc = (int)connection.FromDataPoint("5.001", state);
-    Console.WriteLine("New Event: device " + address + " has status " + perc);
+    Console.WriteLine("New Event: device " + address + " has status " + perc + connection.UnitFromDataPoint("5.001"));
+    // output: "New Event: device 1/1/17 has status 100%);"
     return;
   }
 }
