@@ -7,7 +7,7 @@ namespace KNXLib.DPT
     internal sealed class DataPointTranslator
     {
         public static readonly DataPointTranslator Instance = new DataPointTranslator();
-        private readonly IDictionary<string, DataPoint> _dataPoints = new Dictionary<string, DataPoint>();
+        private readonly IDictionary<string, IDataPoint> _dataPoints = new Dictionary<string, IDataPoint>();
 
         // Explicit static constructor to tell C# compiler
         // not to mark type as beforefieldinit
@@ -17,14 +17,14 @@ namespace KNXLib.DPT
 
         private DataPointTranslator()
         {
-            Type type = typeof(DataPoint);
+            Type type = typeof(IDataPoint);
             IEnumerable<Type> types = AppDomain.CurrentDomain.GetAssemblies()
                             .SelectMany(s => s.GetTypes())
                             .Where(p => type.IsAssignableFrom(p) && p != type);
 
             foreach (Type t in types)
             {
-                DataPoint dp = (DataPoint)Activator.CreateInstance(t);
+                IDataPoint dp = (IDataPoint)Activator.CreateInstance(t);
 
                 foreach (string id in dp.Ids)
                 {
@@ -37,7 +37,7 @@ namespace KNXLib.DPT
         {
             try
             {
-                DataPoint dpt;
+                IDataPoint dpt;
                 if (_dataPoints.TryGetValue(type, out dpt))
                     return dpt.FromDataPoint(data);
             }
@@ -52,7 +52,7 @@ namespace KNXLib.DPT
         {
             try
             {
-                DataPoint dpt;
+                IDataPoint dpt;
                 if (_dataPoints.TryGetValue(type, out dpt))
                     return dpt.FromDataPoint(data);
             }
@@ -67,7 +67,7 @@ namespace KNXLib.DPT
         {
             try
             {
-                DataPoint dpt;
+                IDataPoint dpt;
                 if (_dataPoints.TryGetValue(type, out dpt))
                     return dpt.ToDataPoint(value);
             }
@@ -82,7 +82,7 @@ namespace KNXLib.DPT
         {
             try
             {
-                DataPoint dpt;
+                IDataPoint dpt;
                 if (_dataPoints.TryGetValue(type, out dpt))
                     return dpt.ToDataPoint(value);
             }
@@ -93,15 +93,11 @@ namespace KNXLib.DPT
             return null;
         }
 
-
-
-
-
         public string UnitFromDataPoint(string type)
         {
             try
             {
-                DataPoint dpt;
+                IDataPoint dpt;
                 if (this._dataPoints.TryGetValue(type, out dpt))
                     return dpt.Unit(type);
             }

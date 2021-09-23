@@ -1,18 +1,16 @@
-﻿using System;
-using System.Globalization;
-using System.Linq;
+﻿using System.Globalization;
 using KNXLib.Log;
 
 namespace KNXLib.DPT
 {
-    internal sealed class DataPoint8BitSignRelativeValue : DataPoint
+    internal sealed class DataPoint8BitSignRelativeValue : IDataPoint
     {
-        public override string[] Ids
+        public string[] Ids
         {
             get { return new[] { "6.001", "6.010" }; }
         }
 
-        public override object FromDataPoint(string data)
+        public object FromDataPoint(string data)
         {
             var dataConverted = new byte[data.Length];
             for (var i = 0; i < data.Length; i++)
@@ -21,7 +19,7 @@ namespace KNXLib.DPT
             return FromDataPoint(dataConverted);
         }
 
-        public override object FromDataPoint(byte[] data)
+        public object FromDataPoint(byte[] data)
         {
             if (data == null || data.Length != 1)
                 return 0;
@@ -29,17 +27,17 @@ namespace KNXLib.DPT
             return (int) ((sbyte) data[0]);
         }
 
-        public override byte[] ToDataPoint(string value)
+        public byte[] ToDataPoint(string value)
         {
             return ToDataPoint(float.Parse(value, CultureInfo.InvariantCulture));
         }
 
-        public override byte[] ToDataPoint(object val)
+        public byte[] ToDataPoint(object val)
         {
             var dataPoint = new byte[1];
             dataPoint[0] = 0x00;
             
-            int input = 0;
+            int input;
             if (val is int)
                 input = ((int) val);
             else if (val is float)
@@ -62,16 +60,12 @@ namespace KNXLib.DPT
                 return dataPoint;
             }
 
-            dataPoint[0] = (byte) ((sbyte) ((int) input));
+            dataPoint[0] = (byte) ((sbyte) input);
 
             return dataPoint;
         }
 
-
-
-
-
-        public override string Unit(string type)
+        public string Unit(string type)
         {
             switch (type)
             {

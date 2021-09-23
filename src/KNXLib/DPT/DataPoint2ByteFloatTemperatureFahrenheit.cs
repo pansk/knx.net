@@ -4,9 +4,9 @@ using KNXLib.Log;
 
 namespace KNXLib.DPT
 {
-    internal sealed class DataPoint2ByteFloatTemperatureFahrenheit : DataPoint
+    internal sealed class DataPoint2ByteFloatTemperatureFahrenheit : IDataPoint
     {
-        public override string[] Ids
+        public string[] Ids
         {
             get
             {
@@ -14,7 +14,7 @@ namespace KNXLib.DPT
             }
         }
 
-        public override object FromDataPoint(string data)
+        public object FromDataPoint(string data)
         {
             var dataConverted = new byte[data.Length];
             for (var i = 0; i < data.Length; i++)
@@ -23,12 +23,12 @@ namespace KNXLib.DPT
             return FromDataPoint(dataConverted);
         }
 
-        public override object FromDataPoint(byte[] data)
+        public object FromDataPoint(byte[] data)
         {
             // DPT bits high byte: MEEEEMMM, low byte: MMMMMMMM
             // first M is signed state from two's complement notation
 
-            int val = 0;
+            int val;
             uint m = (uint) ((data[0] & 0x07) << 8) | (data[1]);
             bool signed = ((data[0] & 0x80) >> 7) == 1;
 
@@ -52,12 +52,12 @@ namespace KNXLib.DPT
             return (decimal) Math.Round(calc * Math.Pow(2, power), 2);
         }
 
-        public override byte[] ToDataPoint(string value)
+        public byte[] ToDataPoint(string value)
         {
             return ToDataPoint(float.Parse(value, CultureInfo.InvariantCulture));
         }
 
-        public override byte[] ToDataPoint(object val)
+        public byte[] ToDataPoint(object val)
         {
             var dataPoint = new byte[] { 0x00, 0x00, 0x00 };
 
@@ -126,11 +126,7 @@ namespace KNXLib.DPT
             return dataPoint;
         }
 
-
-
-
-
-        public override string Unit(string type)
+        public string Unit(string type)
         {
             switch (type)
             {

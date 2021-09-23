@@ -52,7 +52,7 @@
     <Compile Include="DPT\DataPoint3BitControl.cs" />
     <Compile Include="Log\Logger.cs" />
     <Compile Include="Properties\AssemblyConfiguration.cs" />
-    <Compile Include="DPT\DataPoint.cs" />
+    <Compile Include="DPT\IDataPoint.cs" />
     <Compile Include="DPT\DataPointTranslator.cs" />
     <Compile Include="KnxConnectionConfiguration.cs" />
     <Compile Include="KnxLockManager.cs" />

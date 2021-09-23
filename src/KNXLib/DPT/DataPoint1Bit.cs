@@ -1,15 +1,11 @@
 ﻿using System;
 using System.Globalization;
 
-
-
-
-
 namespace KNXLib.DPT
 {
-    internal class DataPoint1Bit : DataPoint
+    internal class DataPoint1Bit : IDataPoint
     {
-        public override string[] Ids
+        public string[] Ids
         {
             get
             {
@@ -42,42 +38,26 @@ namespace KNXLib.DPT
             }
         }
 
-
-
-
-
-        public override object FromDataPoint(string data)
+        public object FromDataPoint(string data)
         {
             var dataConverted = new byte[data.Length];
-            for (var i = 0; i < data.Length; i++) dataConverted[i] = (byte) data[i];
+            for (var i = 0; i < data.Length; i++) dataConverted[i] = (byte)data[i];
 
             return this.FromDataPoint(dataConverted);
         }
 
-
-
-
-
-        public override object FromDataPoint(byte[] data)
+        public object FromDataPoint(byte[] data)
         {
             // only byte[0] to care about
             return Convert.ToBoolean(data[0]);
         }
 
-
-
-
-
-        public override byte[] ToDataPoint(string value)
+        public byte[] ToDataPoint(string value)
         {
             return ToDataPoint(float.Parse(value, CultureInfo.InvariantCulture));
         }
 
-
-
-
-
-        public override byte[] ToDataPoint(object val)
+        public byte[] ToDataPoint(object val)
         {
             if (Convert.ToBoolean(val))
             {
@@ -93,11 +73,7 @@ namespace KNXLib.DPT
             };
         }
 
-
-
-
-
-        public override string Unit(string type)
+        public string Unit(string type)
         {
             switch (type)
             {

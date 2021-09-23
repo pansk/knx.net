@@ -1,18 +1,17 @@
-﻿using System;
-using System.Globalization;
+﻿using System.Globalization;
 using System.Linq;
 using KNXLib.Log;
 
 namespace KNXLib.DPT
 {
-    internal sealed class DataPoint8BitNoSignScaledScaling : DataPoint
+    internal sealed class DataPoint8BitNoSignScaledScaling : IDataPoint
     {
-        public override string[] Ids
+        public string[] Ids
         {
             get { return new[] { "5.001" }; }
         }
 
-        public override object FromDataPoint(string data)
+        public object FromDataPoint(string data)
         {
             var dataConverted = new byte[data.Length];
             for (var i = 0; i < data.Length; i++)
@@ -21,7 +20,7 @@ namespace KNXLib.DPT
             return FromDataPoint(dataConverted);
         }
 
-        public override object FromDataPoint(byte[] data)
+        public object FromDataPoint(byte[] data)
         {
             if (data == null)
                 return 0;
@@ -38,24 +37,24 @@ namespace KNXLib.DPT
             return result;
         }
 
-        public override byte[] ToDataPoint(string value)
+        public byte[] ToDataPoint(string value)
         {
             return ToDataPoint(float.Parse(value, CultureInfo.InvariantCulture));
         }
 
-        public override byte[] ToDataPoint(object val)
+        public byte[] ToDataPoint(object val)
         {
             var dataPoint = new byte[2];
             dataPoint[0] = 0x00;
             dataPoint[1] = 0x00;
 
-            decimal input = 0;
+            decimal input;
             if (val is int)
-                input = (decimal) ((int) val);
+                input = (int) val;
             else if (val is float)
                 input = (decimal) ((float) val);
             else if (val is long)
-                input = (decimal) ((long) val);
+                input = (long) val;
             else if (val is double)
                 input = (decimal) ((double) val);
             else if (val is decimal)
@@ -80,11 +79,7 @@ namespace KNXLib.DPT
             return dataPoint;
         }
 
-
-
-
-
-        public override string Unit(string type)
+        public string Unit(string type)
         {
             switch (type)
             {
