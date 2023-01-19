@@ -17,7 +17,7 @@ namespace KNXLib
         private static readonly string ClassName = typeof(KnxConnectionTunneling).ToString();
 
         private readonly IPEndPoint _localEndpoint;
-        private readonly Timer _stateRequestTimer;
+        private readonly System.Timers.Timer _stateRequestTimer;
         private const int stateRequestTimerInterval = 60000;
         private UdpClient _udpClient;
         private byte _sequenceNumber;
@@ -37,7 +37,7 @@ namespace KNXLib
 
             ChannelId = 0x00;
             SequenceNumberLock = new object();
-            _stateRequestTimer = new Timer(stateRequestTimerInterval) { AutoReset = true }; // same time as ETS with group monitor open
+            _stateRequestTimer = new System.Timers.Timer(stateRequestTimerInterval) { AutoReset = true }; // same time as ETS with group monitor open
             _stateRequestTimer.Elapsed += StateRequest;
         }
 
