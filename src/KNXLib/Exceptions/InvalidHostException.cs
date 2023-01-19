@@ -1,32 +1,29 @@
-﻿using System;
+﻿namespace KNXLib.Exceptions;
 
-namespace KNXLib.Exceptions
+/// <summary>
+/// Exception thrown when trying to connect to an invalid host
+/// </summary>
+public class InvalidHostException : Exception
 {
+    private readonly string _host;
+
     /// <summary>
-    /// Exception thrown when trying to connect to an invalid host
+    /// Initializes a new instance of the InvalidHostException class
     /// </summary>
-    public class InvalidHostException : Exception
+    /// <param name="host"></param>
+    public InvalidHostException(string host)
     {
-        private readonly string _host;
+        _host = host;
+    }
 
-        /// <summary>
-        /// Initializes a new instance of the InvalidHostException class
-        /// </summary>
-        /// <param name="host"></param>
-        public InvalidHostException(string host)
-        {
-            _host = host;
-        }
-
-        /// <summary>
-        /// Creates and returns a string representation of the current exception.
-        /// </summary>
-        /// <returns>
-        /// A string representation of the current exception.
-        /// </returns>
-        public override string ToString()
-        {
-            return string.Format("InvalidHostException: Host {0} is invalid.", _host);
-        }
+    /// <summary>
+    /// Creates and returns a string representation of the current exception.
+    /// </summary>
+    /// <returns>
+    /// A string representation of the current exception.
+    /// </returns>
+    public override string ToString()
+    {
+        return $"InvalidHostException: Host {_host} is invalid.";
     }
 }

@@ -1,78 +1,71 @@
-﻿using System;
-using System.Threading;
+﻿namespace KNXLib;
 
-namespace KNXLib
+internal class KnxLockManager
 {
-    internal class KnxLockManager
+    private readonly SemaphoreSlim _sendLock = new(0);
+    private readonly object _connectedLock = new();
+    private bool _isConnected;
+
+    public int LockCount => _sendLock.CurrentCount;
+
+    public void LockConnection()
     {
-        private readonly SemaphoreSlim _sendLock = new SemaphoreSlim(0);
-        private readonly object _connectedLock = new object();
-        private bool _isConnected;
-
-        public int LockCount
+        lock (_connectedLock)
         {
-            get { return _sendLock.CurrentCount; }
-        }
+            if (!_isConnected)
+                return;
 
-        public void LockConnection()
+            SendLock();
+            _isConnected = false;
+        }
+    }
+
+    public void UnlockConnection()
+    {
+        lock (_connectedLock)
         {
-            lock (_connectedLock)
-            {
-                if (!_isConnected)
-                    return;
+            if (_isConnected)
+                return;
 
-                SendLock();
-                _isConnected = false;
-            }
+            _isConnected = true;
+            SendUnlock();
         }
+    }
 
-        public void UnlockConnection()
+    public void PerformLockedOperation(Action action)
+    {
+        // TODO: Shouldn't this check if we are connected?
+
+        try
         {
-            lock (_connectedLock)
-            {
-                if (_isConnected)
-                    return;
-
-                _isConnected = true;
-                SendUnlock();
-            }
+            SendLock();
+            action();
         }
-
-        public void PerformLockedOperation(Action action)
+        finally
         {
-            // TODO: Shouldn't this check if we are connected?
-
-            try
-            {
-                SendLock();
-                action();
-            }
-            finally
-            {
-                SendUnlockPause();
-            }
+            SendUnlockPause();
         }
+    }
 
-        private void SendLock()
-        {
-            _sendLock.Wait();
-        }
+    private void SendLock()
+    {
+        _sendLock.Wait();
+    }
 
-        private void SendUnlock()
-        {
-            _sendLock.Release();
-        }
+    private void SendUnlock()
+    {
+        _sendLock.Release();
+    }
 
-        private void SendUnlockPause()
-        {
-            var t = new Thread(SendUnlockPauseThread) { IsBackground = true };
-            t.Start();
-        }
+    private void SendUnlockPause()
+    {
+        var t = new Thread(SendUnlockPauseThread) { IsBackground = true };
+        t.Start();
+    }
 
-        private void SendUnlockPauseThread()
-        {
-            Thread.Sleep(200);
-            _sendLock.Release();
-        }
+    private void SendUnlockPauseThread()
+    {
+        Thread.Sleep(200);
+        _sendLock.Release();
     }
 }

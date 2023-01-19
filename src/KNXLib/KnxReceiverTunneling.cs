@@ -1,201 +1,195 @@
 using KNXLib.Log;
-using System;
 using System.Net;
 using System.Net.Sockets;
-using System.Threading;
 
-namespace KNXLib
+namespace KNXLib;
+
+internal class KnxReceiverTunneling : KnxReceiver
 {
-    internal class KnxReceiverTunneling : KnxReceiver
+    private static readonly string ClassName = typeof(KnxReceiverTunneling).ToString();
+
+    private UdpClient _udpClient;
+    private IPEndPoint _localEndpoint;
+
+    private readonly object _rxSequenceNumberLock = new();
+    private byte _rxSequenceNumber;
+
+    internal KnxReceiverTunneling(KnxConnection connection, UdpClient udpClient, IPEndPoint localEndpoint)
+        : base(connection)
     {
-        private static readonly string ClassName = typeof(KnxReceiverTunneling).ToString();
+        _udpClient = udpClient;
+        _localEndpoint = localEndpoint;
+    }
 
-        private UdpClient _udpClient;
-        private IPEndPoint _localEndpoint;
+    private KnxConnectionTunneling KnxConnectionTunneling => (KnxConnectionTunneling)KnxConnection;
 
-        private readonly object _rxSequenceNumberLock = new object();
-        private byte _rxSequenceNumber;
+    public void SetClient(UdpClient client)
+    {
+        _udpClient = client;
+    }
 
-        internal KnxReceiverTunneling(KnxConnection connection, UdpClient udpClient, IPEndPoint localEndpoint)
-            : base(connection)
+    public override void ReceiverThreadFlow()
+    {
+        try
         {
-            _udpClient = udpClient;
-            _localEndpoint = localEndpoint;
-        }
-
-        private KnxConnectionTunneling KnxConnectionTunneling
-        {
-            get { return (KnxConnectionTunneling)KnxConnection; }
-        }
-
-        public void SetClient(UdpClient client)
-        {
-            _udpClient = client;
-        }
-
-        public override void ReceiverThreadFlow()
-        {
-            try
+            while (true)
             {
-                while (true)
-                {
-                    var datagram = _udpClient.Receive(ref _localEndpoint);
-                    ProcessDatagram(datagram);
-                }
-            }
-            catch (SocketException e)
-            {
-                Logger.Error(ClassName, e);
-                KnxConnectionTunneling.Disconnected();
-            }
-            catch (ObjectDisposedException)
-            {
-                // ignore, probably reconnect happening
-            }
-            catch (ThreadAbortException)
-            {
-                Thread.ResetAbort();
+                var datagram = _udpClient.Receive(ref _localEndpoint);
+                ProcessDatagram(datagram);
             }
         }
-
-        private void ProcessDatagram(byte[] datagram)
+        catch (SocketException e)
         {
-            try
-            {
-                switch (KnxHelper.GetServiceType(datagram))
-                {
-                    case KnxHelper.SERVICE_TYPE.CONNECT_RESPONSE:
-                        ProcessConnectResponse(datagram);
-                        break;
-                    case KnxHelper.SERVICE_TYPE.CONNECTIONSTATE_RESPONSE:
-                        ProcessConnectionStateResponse(datagram);
-                        break;
-                    case KnxHelper.SERVICE_TYPE.TUNNELLING_ACK:
-                        ProcessTunnelingAck(datagram);
-                        break;
-                    case KnxHelper.SERVICE_TYPE.DISCONNECT_REQUEST:
-                        ProcessDisconnectRequest(datagram);
-                        break;
-                    case KnxHelper.SERVICE_TYPE.DISCONNECT_RESPONSE:
-                        ProcessDisconnectResponse(datagram);
-                        break;
-                    case KnxHelper.SERVICE_TYPE.TUNNELLING_REQUEST:
-                        ProcessDatagramHeaders(datagram);
-                        break;
-                }
-            }
-            catch (Exception e)
-            {
-                Logger.Error(ClassName, e);
+            Logger.Error(ClassName, e);
+            KnxConnectionTunneling.Disconnected();
+        }
+        catch (ObjectDisposedException)
+        {
+            // ignore, probably reconnect happening
+        }
+        catch (ThreadAbortException)
+        {
+            Thread.ResetAbort();
+        }
+    }
 
-                // ignore, missing warning information
+    private void ProcessDatagram(byte[] datagram)
+    {
+        try
+        {
+            switch (KnxHelper.GetServiceType(datagram))
+            {
+                case KnxHelper.ServiceType.CONNECT_RESPONSE:
+                    ProcessConnectResponse(datagram);
+                    break;
+                case KnxHelper.ServiceType.CONNECTIONSTATE_RESPONSE:
+                    ProcessConnectionStateResponse(datagram);
+                    break;
+                case KnxHelper.ServiceType.TUNNELING_ACK:
+                    ProcessTunnelingAck(datagram);
+                    break;
+                case KnxHelper.ServiceType.DISCONNECT_REQUEST:
+                    ProcessDisconnectRequest(datagram);
+                    break;
+                case KnxHelper.ServiceType.DISCONNECT_RESPONSE:
+                    ProcessDisconnectResponse(datagram);
+                    break;
+                case KnxHelper.ServiceType.TUNNELING_REQUEST:
+                    ProcessDatagramHeaders(datagram);
+                    break;
             }
         }
-
-        private void ProcessDatagramHeaders(byte[] datagram)
+        catch (Exception e)
         {
-            // HEADER
-            // TODO: Might be interesting to take out these magic numbers for the datagram indices
-            var knxDatagram = new KnxDatagram
-            {
-                header_length = datagram[0],
-                protocol_version = datagram[1],
-                service_type = new[] { datagram[2], datagram[3] },
-                total_length = datagram[4] + datagram[5]
-            };
+            Logger.Error(ClassName, e);
 
-            var channelId = datagram[7];
-            if (channelId != KnxConnectionTunneling.ChannelId)
-                return;
+            // ignore, missing warning information
+        }
+    }
 
-            var sequenceNumber = datagram[8];
-            var process = true;
-            lock (_rxSequenceNumberLock)
-            {
-                if (sequenceNumber <= _rxSequenceNumber)
-                    process = false;
+    private void ProcessDatagramHeaders(byte[] datagram)
+    {
+        // HEADER
+        // TODO: Might be interesting to take out these magic numbers for the datagram indices
+        var knxDatagram = new KnxDatagram
+        {
+            HeaderLength = datagram[0],
+            ProtocolVersion = datagram[1],
+            ServiceType = new[] { datagram[2], datagram[3] },
+            TotalLength = datagram[4] + datagram[5]
+        };
 
-                _rxSequenceNumber = sequenceNumber;
-            }
+        var channelId = datagram[7];
+        if (channelId != KnxConnectionTunneling.ChannelId)
+            return;
 
-            if (process)
-            {
-                // TODO: Magic number 10, what is it?
-                var cemi = new byte[datagram.Length - 10];
-                Array.Copy(datagram, 10, cemi, 0, datagram.Length - 10);
+        var sequenceNumber = datagram[8];
+        var process = true;
+        lock (_rxSequenceNumberLock)
+        {
+            if (sequenceNumber <= _rxSequenceNumber)
+                process = false;
 
-                ProcessCEMI(knxDatagram, cemi);
-            }
-
-            ((KnxSenderTunneling)KnxConnectionTunneling.KnxSender).SendTunnelingAck(sequenceNumber);
+            _rxSequenceNumber = sequenceNumber;
         }
 
-        private void ProcessDisconnectRequest(byte[] datagram)
+        if (process)
         {
-            KnxConnectionTunneling.DisconnectRequest();
+            // TODO: Magic number 10, what is it?
+            var cemi = new byte[datagram.Length - 10];
+            Array.Copy(datagram, 10, cemi, 0, datagram.Length - 10);
+
+            ProcessCemi(knxDatagram, cemi);
         }
 
-        private void ProcessDisconnectResponse(byte[] datagram)
-        {
-            var channelId = datagram[6];
-            if (channelId != KnxConnectionTunneling.ChannelId)
-                return;
+        ((KnxSenderTunneling)KnxConnectionTunneling.KnxSender).SendTunnelingAck(sequenceNumber);
+    }
 
-            KnxConnectionTunneling.Disconnect();
+    private void ProcessDisconnectRequest(IReadOnlyList<byte> datagram)
+    {
+        KnxConnectionTunneling.DisconnectRequest();
+    }
+
+    private void ProcessDisconnectResponse(IReadOnlyList<byte> datagram)
+    {
+        var channelId = datagram[6];
+        if (channelId != KnxConnectionTunneling.ChannelId)
+            return;
+
+        KnxConnectionTunneling.Disconnect();
+    }
+
+    private void ProcessTunnelingAck(IReadOnlyList<byte> datagram)
+    {
+        // do nothing
+    }
+
+    private void ProcessConnectionStateResponse(IReadOnlyList<byte> datagram)
+    {
+        // HEADER
+        // 06 10 02 08 00 08 -- 48 21
+        var knxDatagram = new KnxDatagram
+        {
+            HeaderLength = datagram[0],
+            ProtocolVersion = datagram[1],
+            ServiceType = new[] { datagram[2], datagram[3] },
+            TotalLength = datagram[4] + datagram[5],
+            ChannelId = datagram[6]
+        };
+
+        var response = datagram[7];
+
+        if (response != 0x21)
+            return;
+
+        Logger.Debug(ClassName, "Received connection state response - No active connection with channel ID {0}", knxDatagram.ChannelId);
+
+        KnxConnection.Disconnect();
+    }
+
+    private void ProcessConnectResponse(IReadOnlyList<byte> datagram)
+    {
+        // HEADER
+        var knxDatagram = new KnxDatagram
+        {
+            HeaderLength = datagram[0],
+            ProtocolVersion = datagram[1],
+            ServiceType = new[] { datagram[2], datagram[3] },
+            TotalLength = datagram[4] + datagram[5],
+            ChannelId = datagram[6],
+            Status = datagram[7]
+        };
+
+        if (knxDatagram.ChannelId == 0x00 && knxDatagram.Status == 0x24)
+        {
+            Logger.Info(ClassName, "KNXLib received connect response - No more connections available");                
         }
-
-        private void ProcessTunnelingAck(byte[] datagram)
+        else
         {
-            // do nothing
-        }
+            KnxConnectionTunneling.ChannelId = knxDatagram.ChannelId;
+            KnxConnectionTunneling.ResetSequenceNumber();
 
-        private void ProcessConnectionStateResponse(byte[] datagram)
-        {
-            // HEADER
-            // 06 10 02 08 00 08 -- 48 21
-            var knxDatagram = new KnxDatagram
-            {
-                header_length = datagram[0],
-                protocol_version = datagram[1],
-                service_type = new[] { datagram[2], datagram[3] },
-                total_length = datagram[4] + datagram[5],
-                channel_id = datagram[6]
-            };
-
-            var response = datagram[7];
-
-            if (response != 0x21)
-                return;
-
-            Logger.Debug(ClassName, "Received connection state response - No active connection with channel ID {0}", knxDatagram.channel_id);
-
-            KnxConnection.Disconnect();
-        }
-
-        private void ProcessConnectResponse(byte[] datagram)
-        {
-            // HEADER
-            var knxDatagram = new KnxDatagram
-            {
-                header_length = datagram[0],
-                protocol_version = datagram[1],
-                service_type = new[] { datagram[2], datagram[3] },
-                total_length = datagram[4] + datagram[5],
-                channel_id = datagram[6],
-                status = datagram[7]
-            };
-
-            if (knxDatagram.channel_id == 0x00 && knxDatagram.status == 0x24)
-            {
-                Logger.Info(ClassName, "KNXLib received connect response - No more connections available");                
-            }
-            else
-            {
-                KnxConnectionTunneling.ChannelId = knxDatagram.channel_id;
-                KnxConnectionTunneling.ResetSequenceNumber();
-
-                KnxConnectionTunneling.Connected();
-            }
+            KnxConnectionTunneling.Connected();
         }
     }
 }
