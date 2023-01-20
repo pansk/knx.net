@@ -22,7 +22,7 @@ public abstract class KnxConnection
     /// <summary>
     ///     Event triggered when connection is established
     /// </summary>
-    public event KnxConnected KnxConnectedDelegate;
+    public event KnxConnected? KnxConnectedDelegate;
 
     /// <summary>
     ///     Delegate function for disconnection trigger
@@ -32,7 +32,7 @@ public abstract class KnxConnection
     /// <summary>
     ///     Event triggered when connection drops
     /// </summary>
-    public event KnxDisconnected KnxDisconnectedDelegate;
+    public event KnxDisconnected? KnxDisconnectedDelegate;
 
     /// <summary>
     ///     Delegate function for KNX events
@@ -44,7 +44,7 @@ public abstract class KnxConnection
     /// <summary>
     ///     Event triggered when there is a new KNX event
     /// </summary>
-    public event KnxEvent KnxEventDelegate;
+    public event KnxEvent? KnxEventDelegate;
 
     /// <summary>
     ///     Delegate function for KNX status queries
@@ -56,7 +56,7 @@ public abstract class KnxConnection
     /// <summary>
     ///     Event triggered when received a status after a query
     /// </summary>
-    public event KnxStatus KnxStatusDelegate;
+    public event KnxStatus? KnxStatusDelegate;
 
     private readonly KnxLockManager _lockManager = new();
 
