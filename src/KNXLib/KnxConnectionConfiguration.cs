@@ -1,43 +1,41 @@
-﻿using System.Net;
+﻿using System;
+using System.Net;
 using KNXLib.Exceptions;
 
-namespace KNXLib;
-
-internal class KnxConnectionConfiguration
+namespace KNXLib
 {
-    public KnxConnectionConfiguration(string host, int port)
+    internal class KnxConnectionConfiguration
     {
-        Host = host;
-        Port = port;
+        public KnxConnectionConfiguration(string host, int port)
+        {
+            Host = host;
+            Port = port;
 
-        IpAddress = null;
-        try
-        {
-            IpAddress = IPAddress.Parse(host);
-        }
-        catch
-        {
             try
             {
-                IpAddress = Dns.GetHostEntry(host).AddressList[0];
+                IpAddress = IPAddress.Parse(host);
             }
-            catch (Exception)
+            catch
             {
-                throw new InvalidHostException(host);
+                try
+                {
+                    IpAddress = Dns.GetHostEntry(host).AddressList[0];
+                }
+                catch (Exception)
+                {
+                    throw new InvalidHostException(host);
+                }
             }
+            
+            EndPoint = new IPEndPoint(IpAddress, port);
         }
 
-        if (IpAddress == null)
-            throw new InvalidHostException(host);
+        public string Host { get; }
 
-        EndPoint = new IPEndPoint(IpAddress, port);
+        public int Port { get; }
+
+        public IPAddress IpAddress { get; }
+
+        public IPEndPoint EndPoint { get; }
     }
-
-    public string Host { get; }
-
-    public int Port { get; }
-
-    public IPAddress IpAddress { get; }
-
-    public IPEndPoint EndPoint { get; }
 }

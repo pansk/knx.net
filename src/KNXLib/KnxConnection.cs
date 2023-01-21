@@ -81,9 +81,9 @@ public abstract class KnxConnection
     /// </summary>
     public IPEndPoint RemoteEndpoint => ConnectionConfiguration.EndPoint;
 
-    internal KnxReceiver KnxReceiver { get; set; }
+    internal KnxReceiver? KnxReceiver { get; set; }
 
-    internal KnxSender KnxSender { get; set; }
+    internal KnxSender? KnxSender { get; set; }
 
     /// <summary>
     ///     Configure this parameter based on the KNX installation:
@@ -120,12 +120,12 @@ public abstract class KnxConnection
     internal virtual void Connected()
     {
         _lockManager.UnlockConnection();
-            
+
         try
         {
             KnxConnectedDelegate?.Invoke();
         }
-        catch(Exception e)
+        catch (Exception e)
         {
             Logger.Error(ClassName, e);
         }
@@ -193,7 +193,7 @@ public abstract class KnxConnection
 
         try
         {
-            val = new[] {Convert.ToByte(data)};
+            val = new[] { Convert.ToByte(data) };
         }
         catch
         {
@@ -242,12 +242,12 @@ public abstract class KnxConnection
         if (data <= 255) // bug?
         {
             val[0] = 0x00;
-            val[1] = (byte) data;
+            val[1] = (byte)data;
         }
         else if (data <= 65535)
         {
-            val[0] = (byte) (data & 0xff);
-            val[1] = (byte) (data >> 8);
+            val[0] = (byte)(data & 0xff);
+            val[1] = (byte)(data >> 8);
         }
         else
         {
@@ -268,7 +268,7 @@ public abstract class KnxConnection
     /// <param name="data">byte value</param>
     public void Action(string address, byte data)
     {
-        Action(address, new byte[] {0x00, data});
+        Action(address, new byte[] { 0x00, data });
     }
 
     /// <summary>
@@ -280,7 +280,7 @@ public abstract class KnxConnection
     {
         Logger.Debug(ClassName, "Sending 0x{0} to {1}.", BitConverter.ToString(data), address);
 
-        _lockManager.PerformLockedOperation(() => KnxSender.Action(address, data));
+        _lockManager.PerformLockedOperation(() => KnxSender?.Action(address, data));
 
         Logger.Debug(ClassName, "Sent 0x{0} to {1}.", BitConverter.ToString(data), address);
     }
@@ -294,7 +294,7 @@ public abstract class KnxConnection
     {
         Logger.Debug(ClassName, "Sending request status to {0}.", address);
 
-        _lockManager.PerformLockedOperation(() => KnxSender.RequestStatus(address));
+        _lockManager.PerformLockedOperation(() => KnxSender?.RequestStatus(address));
 
         Logger.Debug(ClassName, "Sent request status to {0}.", address);
     }
@@ -306,7 +306,7 @@ public abstract class KnxConnection
     /// <param name="type">Datapoint type, e.g.: 9.001</param>
     /// <param name="data">Data to convert</param>
     /// <returns></returns>
-    public object FromDataPoint(string type, string data)
+    public object? FromDataPoint(string type, string data)
     {
         return DataPointTranslator.Instance.FromDataPoint(type, data);
     }
@@ -318,7 +318,7 @@ public abstract class KnxConnection
     /// <param name="type">Datapoint type, e.g.: 9.001</param>
     /// <param name="data">Data to convert</param>
     /// <returns></returns>
-    public object FromDataPoint(string type, byte[] data)
+    public object? FromDataPoint(string type, byte[] data)
     {
         return DataPointTranslator.Instance.FromDataPoint(type, data);
     }
@@ -330,7 +330,7 @@ public abstract class KnxConnection
     /// <param name="type">Datapoint type, e.g.: 9.001</param>
     /// <param name="value">Value to convert</param>
     /// <returns></returns>
-    public byte[] ToDataPoint(string type, string value)
+    public byte[]? ToDataPoint(string type, string value)
     {
         return DataPointTranslator.Instance.ToDataPoint(type, value);
     }
@@ -342,7 +342,7 @@ public abstract class KnxConnection
     /// <param name="type">Datapoint type, e.g.: 9.001</param>
     /// <param name="value">Value to convert</param>
     /// <returns></returns>
-    public byte[] ToDataPoint(string type, object value)
+    public byte[]? ToDataPoint(string type, object value)
     {
         return DataPointTranslator.Instance.ToDataPoint(type, value);
     }

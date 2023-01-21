@@ -122,7 +122,7 @@ internal class KnxReceiverTunneling : KnxReceiver
             ProcessCemi(knxDatagram, cemi);
         }
 
-        ((KnxSenderTunneling)KnxConnectionTunneling.KnxSender).SendTunnelingAck(sequenceNumber);
+        (KnxConnectionTunneling.KnxSender as KnxSenderTunneling)?.SendTunnelingAck(sequenceNumber);
     }
 
     private void ProcessDisconnectRequest(IReadOnlyList<byte> datagram)

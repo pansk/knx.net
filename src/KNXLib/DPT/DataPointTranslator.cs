@@ -20,16 +20,17 @@ internal sealed class DataPointTranslator
 
         foreach (var t in types)
         {
-            var dp = (DataPoint)Activator.CreateInstance(t);
-
-            foreach (var id in dp.Ids)
+            if (Activator.CreateInstance(t) is DataPoint dp)
             {
-                _dataPoints.Add(id, dp);
+                foreach (var id in dp.Ids)
+                {
+                    _dataPoints.Add(id, dp);
+                }
             }
         }
     }
 
-    public object FromDataPoint(string type, string data)
+    public object? FromDataPoint(string type, string data)
     {
         try
         {
@@ -43,7 +44,7 @@ internal sealed class DataPointTranslator
         return null;
     }
 
-    public object FromDataPoint(string type, byte[] data)
+    public object? FromDataPoint(string type, byte[] data)
     {
         try
         {
@@ -57,7 +58,7 @@ internal sealed class DataPointTranslator
         return null;
     }
 
-    public byte[] ToDataPoint(string type, string value)
+    public byte[]? ToDataPoint(string type, string value)
     {
         try
         {
@@ -71,7 +72,7 @@ internal sealed class DataPointTranslator
         return null;
     }
 
-    public byte[] ToDataPoint(string type, object value)
+    public byte[]? ToDataPoint(string type, object value)
     {
         try
         {

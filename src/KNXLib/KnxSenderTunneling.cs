@@ -83,8 +83,7 @@ internal class KnxSenderTunneling : KnxSender
             catch
             {
                 KnxConnectionTunneling.RevertSingleSequenceNumber();
-
-                return null;
+                throw;
             }
         }
     }
@@ -114,8 +113,7 @@ internal class KnxSenderTunneling : KnxSender
             catch
             {
                 KnxConnectionTunneling.RevertSingleSequenceNumber();
-
-                return null;
+                throw;
             }
         }
     }

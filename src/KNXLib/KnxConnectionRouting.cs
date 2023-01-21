@@ -112,7 +112,7 @@ public class KnxConnectionRouting : KnxConnection
     /// </summary>
     public override void Disconnect()
     {
-        KnxReceiver.Stop();
+        KnxReceiver?.Stop();
         foreach (var client in _udpClients)
         {
             client.DropMulticastGroup(ConnectionConfiguration.IpAddress);

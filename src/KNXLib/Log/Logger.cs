@@ -12,7 +12,7 @@ public class Logger
 
     /// <summary>
     /// </summary>
-    public static DebugEvent DebugEventEndpoint;
+    public static event DebugEvent? DebugEventEndpoint;
 
     /// <summary>
     /// </summary>
@@ -22,7 +22,7 @@ public class Logger
 
     /// <summary>
     /// </summary>
-    public static InfoEvent InfoEventEndpoint;
+    public static event InfoEvent? InfoEventEndpoint;
 
     /// <summary>
     /// </summary>
@@ -32,7 +32,7 @@ public class Logger
 
     /// <summary>
     /// </summary>
-    public static WarnEvent WarnEventEndpoint;
+    public static event WarnEvent? WarnEventEndpoint;
 
     /// <summary>
     /// </summary>
@@ -42,7 +42,7 @@ public class Logger
 
     /// <summary>
     /// </summary>
-    public static ErrorEvent ErrorEventEndpoint;
+    public static event ErrorEvent? ErrorEventEndpoint;
 
     internal static void Debug(string id, string message, params object[] arg)
     {
@@ -68,7 +68,10 @@ public class Logger
     {
         Error(id, e.Message);
         Error(id, e.ToString());
-        Error(id, e.StackTrace);
+        if (e.StackTrace != null)
+        {
+            Error(id, e.StackTrace);
+        }
 
         if (e.InnerException != null)
             Error(id, e.InnerException);

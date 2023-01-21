@@ -18,7 +18,7 @@ public class KnxConnectionTunneling : KnxConnection
     private readonly IPEndPoint _localEndpoint;
     private readonly System.Timers.Timer _stateRequestTimer;
     private const int StateRequestTimerInterval = 60000;
-    private UdpClient _udpClient;
+    private UdpClient? _udpClient;
     private byte _sequenceNumber;
 
     /// <summary>
@@ -142,9 +142,9 @@ public class KnxConnectionTunneling : KnxConnection
         {
             TerminateStateRequest();
             DisconnectRequest();
-            KnxReceiver.Stop();
-            _udpClient.Close();
-            _udpClient.Dispose();
+            KnxReceiver?.Stop();
+            _udpClient?.Close();
+            _udpClient?.Dispose();
         }
         catch (Exception e)
         {
@@ -214,10 +214,10 @@ public class KnxConnectionTunneling : KnxConnection
         datagram[24] = 0x02;
         datagram[25] = 0x00;
 
-        ((KnxSenderTunneling) KnxSender).SendDataSingle(datagram);
+        (KnxSender as KnxSenderTunneling)?.SendDataSingle(datagram);
     }
 
-    private void StateRequest(object sender, ElapsedEventArgs ev)
+    private void StateRequest(object? sender, ElapsedEventArgs ev)
     {
         // HEADER
         var datagram = new byte[16];
@@ -241,7 +241,7 @@ public class KnxConnectionTunneling : KnxConnection
 
         try
         {
-            KnxSender.SendData(datagram);
+            KnxSender?.SendData(datagram);
         }
         catch (Exception e)
         {
@@ -271,6 +271,6 @@ public class KnxConnectionTunneling : KnxConnection
         datagram[14] = (byte) (_localEndpoint.Port >> 8);
         datagram[15] = (byte) _localEndpoint.Port;
 
-        KnxSender.SendData(datagram);
+        KnxSender?.SendData(datagram);
     }
 }

@@ -39,17 +39,18 @@ internal class KnxReceiverRouting : KnxReceiver
 
     private void OnReceive(IAsyncResult result)
     {
-        IPEndPoint endPoint = null;
-        var args = (object[])result.AsyncState;
-        var session = (UdpClient)args[0];
+        IPEndPoint? endPoint = null;
+        var args = result.AsyncState as object[];
+        var session = args?[0] as UdpClient;
 
         try
         {
-            var datagram = session.EndReceive(result, ref endPoint);
-            ProcessDatagram(datagram);
+            var datagram = session?.EndReceive(result, ref endPoint);
+            if (datagram != null)
+                ProcessDatagram(datagram);
 
             // We make the next call to the begin receive
-            session.BeginReceive(OnReceive, args);
+            session?.BeginReceive(OnReceive, args);
         }
         catch (ObjectDisposedException)
         {
