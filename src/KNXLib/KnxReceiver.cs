@@ -25,24 +25,17 @@ namespace KNXLib
         {
             try
             {
-                while (true)
+                while (_rxDatagrams != null)
                 {
-                    KnxDatagram? datagram = null;
-
-                    try
-                    {
-                        if (_rxDatagrams?.Any() ?? false)
-                            datagram = _rxDatagrams.Take();
-                    }
-                    catch (InvalidOperationException) { }
+                    var datagram = _rxDatagrams?.Take();
 
                     if (datagram != null)
                         KnxConnection.Event(datagram.DestinationAddress, datagram.Data);
                 }
             }
-            catch (ThreadAbortException)
+            catch (ObjectDisposedException e)
             {
-                Thread.ResetAbort();
+                Logger.Error("Boh!", e);
             }
         }
 
@@ -69,18 +62,8 @@ namespace KNXLib
             {
                 Thread.ResetAbort();
             }
-            try
-            {
-                if (_consumerThread?.ThreadState.Equals(ThreadState.Running) ?? false)
-                {
-                    _consumerThread.Abort();
-                }
-            }
-            catch (ThreadAbortException)
-            {
-                Thread.ResetAbort();
-            }
             _rxDatagrams?.Dispose();
+            _rxDatagrams = null;
         }
 
         protected void ProcessCemi(KnxDatagram datagram, byte[] cemi)
