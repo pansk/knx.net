@@ -5,10 +5,7 @@ namespace KNXLib.DPT;
 
 internal sealed class DataPoint8BitNoSignScaledAngle : DataPoint
 {
-    public override string[] Ids
-    {
-        get { return new[] { "5.003" }; }
-    }
+    public override string[] Ids { get; } = { "5.003" };
 
     public override object FromDataPoint(string data)
     {

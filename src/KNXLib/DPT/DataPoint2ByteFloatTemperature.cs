@@ -5,13 +5,7 @@ namespace KNXLib.DPT;
 
 internal sealed class DataPoint2ByteFloatTemperature : DataPoint
 {
-    public override string[] Ids
-    {
-        get
-        {
-            return new[] { "9.001" };
-        }
-    }
+    public override string[] Ids { get; } = { "9.001" };
 
     public override object FromDataPoint(string data)
     {

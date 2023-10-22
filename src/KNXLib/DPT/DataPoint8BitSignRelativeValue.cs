@@ -5,10 +5,7 @@ namespace KNXLib.DPT;
 
 internal sealed class DataPoint8BitSignRelativeValue : DataPoint
 {
-    public override string[] Ids
-    {
-        get { return new[] { "6.001", "6.010" }; }
-    }
+    public override string[] Ids { get; } = { "6.001", "6.010" };
 
     public override object FromDataPoint(string data)
     {

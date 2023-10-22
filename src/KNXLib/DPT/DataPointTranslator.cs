@@ -3,7 +3,7 @@
 internal sealed class DataPointTranslator
 {
     public static readonly DataPointTranslator Instance = new();
-    private readonly IDictionary<string, DataPoint> _dataPoints = new Dictionary<string, DataPoint>();
+    private readonly IDictionary<string, DataPoint> _dataPoints;
 
     // Explicit static constructor to tell C# compiler
     // not to mark type as beforefieldinit
@@ -14,20 +14,13 @@ internal sealed class DataPointTranslator
     private DataPointTranslator()
     {
         var type = typeof(DataPoint);
-        var types = AppDomain.CurrentDomain.GetAssemblies()
+        _dataPoints = AppDomain.CurrentDomain.GetAssemblies()
             .SelectMany(s => s.GetTypes())
-            .Where(p => type.IsAssignableFrom(p) && p != type);
+            .Where(p => p.IsSubclassOf(type)).Select(t => Activator.CreateInstance(t) as DataPoint)
+            .SelectMany(dp =>
+                dp?.Ids.Select(id => new KeyValuePair<string, DataPoint>(id, dp)) ??
+                Array.Empty<KeyValuePair<string, DataPoint>>()).ToDictionary(t => t.Key, t => t.Value);
 
-        foreach (var t in types)
-        {
-            if (Activator.CreateInstance(t) is DataPoint dp)
-            {
-                foreach (var id in dp.Ids)
-                {
-                    _dataPoints.Add(id, dp);
-                }
-            }
-        }
     }
 
     public object? FromDataPoint(string type, string data)

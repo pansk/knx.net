@@ -5,10 +5,7 @@ namespace KNXLib.DPT;
 
 internal sealed class DataPoint8BitNoSignScaledPercentU8 : DataPoint
 {
-    public override string[] Ids
-    {
-        get { return new[] { "5.004" }; }
-    }
+    public override string[] Ids { get; } = { "5.004" };
 
     public override object FromDataPoint(string data)
     {

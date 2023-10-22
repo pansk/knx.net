@@ -5,10 +5,7 @@ namespace KNXLib.DPT;
 
 internal sealed class DataPoint8BitNoSignNonScaledValue1UCount : DataPoint
 {
-    public override string[] Ids
-    {
-        get { return new[] { "5.010" }; }
-    }
+    public override string[] Ids { get; } = { "5.010" };
 
     public override object FromDataPoint(string data)
     {

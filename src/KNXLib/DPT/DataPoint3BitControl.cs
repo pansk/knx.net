@@ -5,13 +5,7 @@ namespace KNXLib.DPT;
 
 internal sealed class DataPoint3BitControl : DataPoint
 {
-    public override string[] Ids
-    {
-        get
-        {
-            return new[] {"3.008", "3.007"};
-        }
-    }
+    public override string[] Ids { get; } = {"3.008", "3.007"};
 
     public override object FromDataPoint(string data)
     {
